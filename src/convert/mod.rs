@@ -30,32 +30,30 @@ pub trait ToByteVec {
     fn to_bytevec(&self) -> Result<ByteVec>;
 }
 
-macro_rules! impl_to_bytevec_for {
-    ($target:ty) => {
-        impl ToByteVec for $target {
-            fn to_bytevec(&self) -> Result<Vec<u8>> {
-                if self.len() % 2 != 0 {
-                    Err("Hex string not multiple of 2.".into())
-                } else {
-                    self.chars()
-                        .map(|c| c.to_digit(16))
-                        .collect::<Option<Vec<u32>>>()
-                        .ok_or("invalid digit".into())
-                        .map(|chars| {
-                            chars
-                                .chunks_exact(2)
-                                .map(|pair| pair.iter().map(|&v| v as u8))
-                                .map(|mut pair| (pair.next().unwrap() << 4) + pair.next().unwrap())
-                                .collect::<Vec<u8>>()
-                        })
-                }
-            }
+impl<T> ToByteVec for T
+where
+    T: AsRef<str>,
+{
+    fn to_bytevec(&self) -> Result<Vec<u8>> {
+        let origin = self.as_ref();
+        if origin.len() % 2 != 0 {
+            Err("Hex string not multiple of 2.".into())
+        } else {
+            origin
+                .chars()
+                .map(|c| c.to_digit(16))
+                .collect::<Option<Vec<u32>>>()
+                .ok_or("invalid digit".into())
+                .map(|chars| {
+                    chars
+                        .chunks_exact(2)
+                        .map(|pair| pair.iter().map(|&v| v as u8))
+                        .map(|mut pair| (pair.next().unwrap() << 4) + pair.next().unwrap())
+                        .collect::<Vec<u8>>()
+                })
         }
-    };
+    }
 }
-
-impl_to_bytevec_for!(str);
-impl_to_bytevec_for!(String);
 
 pub type Base64 = String;
 
