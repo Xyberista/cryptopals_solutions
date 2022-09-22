@@ -30,20 +30,19 @@ pub trait ToByteVec {
     fn to_bytevec(&self) -> Result<ByteVec>;
 }
 
+#[allow(clippy::cast_possible_truncation)]
 impl<T> ToByteVec for T
 where
     T: AsRef<str>,
 {
     fn to_bytevec(&self) -> Result<Vec<u8>> {
         let origin = self.as_ref();
-        if origin.len() % 2 != 0 {
-            Err("Hex string not multiple of 2.".into())
-        } else {
+        if origin.len() % 2 == 0 {
             origin
                 .chars()
                 .map(|c| c.to_digit(16))
                 .collect::<Option<Vec<u32>>>()
-                .ok_or("invalid digit".into())
+                .ok_or_else(|| "invalid digit".into())
                 .map(|chars| {
                     chars
                         .chunks_exact(2)
@@ -51,6 +50,8 @@ where
                         .map(|mut pair| (pair.next().unwrap() << 4) + pair.next().unwrap())
                         .collect::<Vec<u8>>()
                 })
+        } else {
+            Err("Hex string not multiple of 2.".into())
         }
     }
 }

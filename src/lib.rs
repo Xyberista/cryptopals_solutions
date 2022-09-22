@@ -1,3 +1,4 @@
-mod set1;
+mod challenges;
 
 mod convert;
+mod xor;
