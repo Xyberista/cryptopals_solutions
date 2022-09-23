@@ -10,7 +10,7 @@ pub fn fixed_xor(hex_a: &str, hex_b: &str) -> String {
 }
 
 #[cfg(test)]
-mod test_fixed_xor {
+mod test_c02 {
     use super::fixed_xor;
 
     #[test]

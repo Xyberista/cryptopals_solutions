@@ -1,3 +1,5 @@
+use cryptopals::challenges::*;
+
 fn main() {
-    println!("Hello, world!");
+    c04::run();
 }
